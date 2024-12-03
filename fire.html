@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Fire Detection</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    #camera-container {
+      position: relative;
+    }
+    video, canvas {
+      max-width: 100%;
+    }
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container text-center my-5">
+    <h1>Real-Time Fire Detection</h1>
+    <p>Ensure the camera has a clear view for live fire detection.</p>
+    <div id="camera-container">
+      <video id="camera" autoplay playsinline width="640" height="480"></video>
+      <canvas id="overlay" width="640" height="480"></canvas>
+    </div>
+    <!-- Hidden audio element for buzzing sound -->
+    <audio id="alert-sound" src="1.mp3"></audio>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const video = document.getElementById("camera");
+    const overlay = document.getElementById("overlay");
+    const ctx = overlay.getContext("2d");
+    const alertSound = document.getElementById("alert-sound"); // Audio element
+
+    const API_URL = "https://detect.roboflow.com";
+    const API_KEY = "IJgd8jCLHIdJE3mNjMvJ";
+    const MODEL_ID = "fire_detection-lwcsv/1";
+
+    // Start the camera feed
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => console.error("Error accessing the camera: ", err));
+
+    // Function to send frames to the Roboflow API
+    async function runDetection() {
+      // Capture a frame from the video
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const tempCtx = canvas.getContext("2d");
+      tempCtx.drawImage(video, 0, 0);
+
+      // Convert the canvas to a blob (image file)
+      canvas.toBlob(async (blob) => {
+        const formData = new FormData();
+        formData.append("file", blob);
+
+        try {
+          // Send the frame to the Roboflow API
+          const response = await fetch(`${API_URL}/${MODEL_ID}?api_key=${API_KEY}`, {
+            method: "POST",
+            body: formData,
+          });
+
+          const data = await response.json();
+
+          // Draw the predictions on the overlay canvas
+          ctx.clearRect(0, 0, overlay.width, overlay.height);
+          let class2Detected = false;
+
+          if (data.predictions) {
+            data.predictions.forEach(prediction => {
+              const { x, y, width, height, class: label, class_id } = prediction;
+
+              // Draw bounding boxes and labels
+              ctx.strokeStyle = "red";
+              ctx.lineWidth = 2;
+              ctx.strokeRect(x - width / 2, y - height / 2, width, height);
+              ctx.fillStyle = "red";
+              ctx.font = "16px Arial";
+              ctx.fillText(label, x - width / 2, y - height / 2 - 10);
+
+              // Check for class_id 2
+              if (class_id === 2) {
+                class2Detected = true;
+              }
+            });
+          }
+
+          // Play alert sound if class_id 2 is detected
+          if (class2Detected) {
+            alertSound.play();
+          }
+        } catch (error) {
+          console.error("Error during inference:", error);
+        }
+      }, "image/jpeg");
+    }
+
+    // Run detection at regular intervals
+    setInterval(runDetection, 1000); // Run every 1 second
+  </script>
+</body>
+</html>
