@@ -8,58 +8,150 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <style>
+      body {
+        background-color: #222831; /* Dark background */
+        color: #eeeeee; /* Light text for readability */
+        font-family: Arial, sans-serif;
+      }
+      .btn-custom {
+        border: none;
+        color: #ffffff; /* White text */
+        text-transform: uppercase;
+        padding: 15px;
+        margin: 10px 0;
+        font-size: 1rem;
+        border-radius: 8px; /* Rounded corners */
+        display: block;
+        width: 100%;
+        min-height: 100px;
+        transition: all 0.3s ease;
+      }
+      .btn-custom:hover {
+        transform: translateY(-2px);
+      }
+      .seatbelt { background-color: #F8B195; } /* Light pink */
+      .smoke { background-color: #F67280; } /* Coral pink */
+      .distraction { background-color: #C06C84; } /* Muted purple */
+      .fatigue { background-color: #6C5B7B; } /* Dusty purple */
+      .fire { background-color: #355C7D; } /* Blue */
+      .passenger { background-color: #F8B195; }
+      .weapons { background-color: #F67280; }
+      .facial { background-color: #C06C84; }
+
+      .description {
+        font-size: 0.85rem;
+        margin-top: 8px;
+        color: #cccccc; /* Softer text for descriptions */
+      }
+      .card {
+        background-color: #393e46; /* Card background */
+        border: none;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+        margin: 10px 0;
+        height: 100%; /* Make cards have the same size */
+      }
+      .card-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      h1 {
+        color: #eeeeee; /* Light header text */
+        margin-bottom: 40px;
+        font-weight: bold;
+      }
+      .container {
+        max-width: 1200px;
+      }
+
+      @media (max-width: 768px) {
+        .btn-custom {
+          font-size: 0.9rem;
+        }
+      }
+    </style>
   </head>
   <body>
     <div class="container text-center my-5">
-      <h1 class="mb-4">Choose an AI Model</h1>
+      <h1>Ride Hailing AI Solutions</h1>
       <div class="row">
-        <!-- Buttons for each model -->
+        <!-- 4 x 2 Layout -->
 
-        <div class="col-md-6 my-2">
-          <a href="seatbelt.html" class="btn btn-primary w-100"
-            >Seat Belt Detection</a
-          >
-        </div>
-        <div class="col-md-6 my-2">
-          <a href="smoke.html" class="btn btn-secondary w-100"
-            >In Car Smoke Detection</a
-          >
-        </div>
-        <div class="col-md-6 my-2">
-          <a href="distraction.html" class="btn btn-success w-100"
-            >Driver Distraction Detection</a
-          >
-        </div>
-        <div class="col-md-6 my-2">
-          <a href="fatigue.html" class="btn btn-danger w-100"
-            >Fatigue Detection</a
-          >
-        </div>
-        <div class="col-md-6 my-2">
-          <a href="fire.html" class="btn btn-warning w-100"
-            >In Car Fire Detection</a
-          >
-        </div>
-        <div class="col-md-6 my-2">
-          <a href="passenger.html" class="btn btn-info w-100"
-            >Passenger Detection</a
-          >
-        </div>
-        <div class="col-md-6 my-2">
-          <a href="weapons.html" class="btn btn-dark w-100"
-            >Deadly Weapons Detection</a
-          >
-        </div>
-        <div class="col-md-6 my-2">
-          <a href="facial.html" class="btn btn-light w-100"
-            >Facial Expression Analysis</a
-          >
-        </div>
-        <div class="col-md-12 my-2">
-            <a href="sample.html" class="btn btn-primary w-100"
-              >Sample Detection</a
-            >
+        <div class="col-md-3 my-3">
+          <div class="card">
+            <div class="card-body">
+              <a href="seatbelt.html" class="btn btn-custom seatbelt">Seat Belt Detection</a>
+              <p class="description">Detects whether the driver and passengers are wearing seat belts.</p>
+            </div>
           </div>
+        </div>
+
+        <div class="col-md-3 my-3">
+          <div class="card">
+            <div class="card-body">
+              <a href="smoke.html" class="btn btn-custom smoke">In Car Smoke Detection</a>
+              <p class="description">Alerts if someone is smoking in the car (vape, cigarettes, or real fire).</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3 my-3">
+          <div class="card">
+            <div class="card-body">
+              <a href="distraction.html" class="btn btn-custom distraction">Driver Distraction Detection</a>
+              <p class="description">Monitors the driver for distraction like looking away or using a mobile device.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3 my-3">
+          <div class="card">
+            <div class="card-body">
+              <a href="fatigue.html" class="btn btn-custom fatigue">Fatigue Detection</a>
+              <p class="description">Detects signs of drowsiness in the driver, like yawning or eye closure.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3 my-3">
+          <div class="card">
+            <div class="card-body">
+              <a href="fire.html" class="btn btn-custom fire">In Car Fire Detection</a>
+              <p class="description">Detects any fire hazards inside the car for passenger safety.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3 my-3">
+          <div class="card">
+            <div class="card-body">
+              <a href="passenger.html" class="btn btn-custom passenger">Passenger Detection</a>
+              <p class="description">Ensures the number of passengers in the vehicle matches the allowed count.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3 my-3">
+          <div class="card">
+            <div class="card-body">
+              <a href="weapons.html" class="btn btn-custom weapons">Deadly Weapons Detection</a>
+              <p class="description">Identifies visible weapons to prevent potential security risks.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3 my-3">
+          <div class="card">
+            <div class="card-body">
+              <a href="facial.html" class="btn btn-custom facial">Facial Expression Analysis</a>
+              <p class="description">Analyzes driver facial expressions for stress or emotional distraction.</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

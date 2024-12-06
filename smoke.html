@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Smoke Detection</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #222831; /* Dark background */
+      color: #eeeeee; /* Light text for readability */
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      max-width: 1200px;
+    }
+    h1 {
+      color: #F8B195; /* Light pink */
+      margin-bottom: 40px;
+      font-weight: bold;
+    }
+    p, .description {
+      color: #cccccc;
+      margin-bottom: 20px;
+    }
+    #camera-container {
+      position: relative;
+      margin-bottom: 30px;
+    }
+    video, canvas {
+      max-width: 100%;
+      border-radius: 10px;
+    }
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 10px;
+    }
+    .instructions {
+      background-color: #F67280; /* Coral pink */
+      padding: 20px;
+      border-radius: 10px;
+      color: #222831; /* Dark background for text readability */
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+    .description {
+      font-size: 0.85rem;
+      margin-top: 8px;
+      color: #cccccc;
+    }
+    .alert-info {
+      background-color: #6C5B7B; /* Dusty purple */
+      color: #eeeeee;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .btn-custom {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container text-center my-5">
+    <h1>Real-Time Smoke Detection</h1>
+    <p class="lead">The system will trigger an alarm whenever smoke is detected. Try it out!</p>
+
+    <!-- Instructions Section -->
+    <div class="instructions">
+      <h4>Instructions:</h4>
+      <ul class="list-unstyled">
+        <li>Grant access to your device's camera to get started.</li>
+        <li>The system will detect smoke presence and trigger an alarm if detected.</li>
+      </ul>
+    </div>
+
+    <!-- Camera and overlay setup -->
+    <div id="camera-container">
+      <video id="camera" autoplay playsinline width="640" height="480"></video>
+      <canvas id="overlay" width="640" height="480"></canvas>
+    </div>
+
+    <!-- Hidden audio element for buzzing sound -->
+    <audio id="buzz-sound" src="1.mp3"></audio>
+
+    <!-- Alert Info Section -->
+    <div class="alert-info">
+      <p>The system will begin real-time detection and trigger an alarm when smoke detection occurs.</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const video = document.getElementById("camera");
+    const overlay = document.getElementById("overlay");
+    const ctx = overlay.getContext("2d");
+    const buzzSound = document.getElementById("buzz-sound"); // Audio element
+
+    const API_URL = "https://detect.roboflow.com";
+    const API_KEY = "JFFrjRRtfK7Ax7UbM6mK";
+    const MODEL_ID = "smoke-detection-yolov8/1"; // New Model
+
+    // Start the camera feed
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => console.error("Error accessing the camera: ", err));
+
+    // Function to send frames to the new Roboflow API model
+    async function runDetection() {
+      // Capture a frame from the video
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const tempCtx = canvas.getContext("2d");
+      tempCtx.drawImage(video, 0, 0);
+
+      // Convert the canvas to a blob (image file)
+      canvas.toBlob(async (blob) => {
+        const formData = new FormData();
+        formData.append("file", blob);
+
+        try {
+          // Send the frame to the Roboflow API
+          const response = await fetch(`${API_URL}/${MODEL_ID}?api_key=${API_KEY}`, {
+            method: "POST",
+            body: formData,
+          });
+
+          const data = await response.json();
+
+          // Draw the predictions on the overlay canvas
+          ctx.clearRect(0, 0, overlay.width, overlay.height);
+          let detectionDetected = false;
+
+          if (data.predictions) {
+            data.predictions.forEach(prediction => {
+              const { x, y, width, height, class: label } = prediction;
+
+              // Draw bounding boxes and labels
+              ctx.strokeStyle = "lime";
+              ctx.lineWidth = 2;
+              ctx.strokeRect(x - width / 2, y - height / 2, width, height);
+              ctx.fillStyle = "lime";
+              ctx.font = "16px Arial";
+              ctx.fillText(label, x - width / 2, y - height / 2 - 10);
+
+              // Check if smoke is detected
+              detectionDetected = true;
+            });
+          }
+
+          // Play buzzing sound if detection is made (smoke detected or not)
+          if (detectionDetected) {
+            buzzSound.play();
+          }
+        } catch (error) {
+          console.error("Error during inference:", error);
+        }
+      }, "image/jpeg");
+    }
+
+    // Run detection at regular intervals
+    setInterval(runDetection, 1000); // Run every 1 second
+  </script>
+</body>
+</html>
